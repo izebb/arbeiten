@@ -1,0 +1,67 @@
+:root {
+  --red: #dc4c3e;
+  --red-hover: #c3392b;
+  --red-tint: #fef0ec;
+
+  --bg: #ffffff;
+  --bg-sidebar: #fcfaf8;
+  --bg-hover: #f2f1ef;
+  --bg-active: #ffefe5;
+  --bg-input: #ffffff;
+
+  --text: #202020;
+  --text-secondary: #808080;
+  --text-tertiary: #a8a8a8;
+
+  --border: #f0f0f0;
+  --border-strong: #dddddd;
+
+  --p1: #d1453b;
+  --p2: #eb8909;
+  --p3: #246fe0;
+  --p4: #b3b3b3;
+
+  --due-today: #058527;
+  --due-overdue: #d1453b;
+  --due-upcoming: #692fc2;
+  --due-future: #5297ff;
+
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 2px 12px rgba(0, 0, 0, 0.14), 0 0 1px rgba(0, 0, 0, 0.12);
+  --shadow-lg: 0 8px 28px rgba(0, 0, 0, 0.22);
+
+  --radius-sm: 5px;
+  --radius: 8px;
+  --radius-lg: 12px;
+
+  --sidebar-width: 286px;
+  --content-max: 768px;
+
+  --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial,
+    'Apple Color Emoji', sans-serif;
+}
+
+[data-theme='dark'] {
+  --red: #e8584c;
+  --red-hover: #f06a5e;
+  --red-tint: #3a2a26;
+
+  --bg: #1e1e1e;
+  --bg-sidebar: #282725;
+  --bg-hover: #323230;
+  --bg-active: #3a2a26;
+  --bg-input: #2a2a28;
+
+  --text: #ededed;
+  --text-secondary: #a0a0a0;
+  --text-tertiary: #7a7a7a;
+
+  --border: #333230;
+  --border-strong: #444341;
+
+  --p4: #6f6f6f;
+
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.5);
+  --shadow-md: 0 2px 12px rgba(0, 0, 0, 0.55);
+  --shadow-lg: 0 8px 28px rgba(0, 0, 0, 0.6);
+}

@@ -1,6 +1,7 @@
 import type { DB } from './types'
 import { nextOccurrence } from '@shared/recurrence'
 import type {
+  Counts,
   FocusSession,
   Label,
   LabelPatch,
@@ -114,6 +115,7 @@ export interface Repositories {
     delete(id: number): void
     reorder(orderedIds: number[]): void
     subtasks(parentId: number): Task[]
+    counts(): Counts
   }
   labels: {
     list(): Label[]
@@ -245,6 +247,11 @@ export function createRepositories(db: DB): Repositories {
           where = `t.is_completed = 0 AND t.content LIKE @text`
           params.text = `%${query.text ?? ''}%`
           break
+        case 'priority':
+          where = `t.parent_id IS NULL AND t.is_completed = 0 AND t.priority = @priority`
+          params.priority = query.priority ?? 4
+          order = 'ORDER BY t.due_date ASC, t.position ASC'
+          break
       }
 
       const rows = db.prepare(`${TASK_SELECT} WHERE ${where} ${order}`).all(params) as TaskRow[]
@@ -344,6 +351,39 @@ export function createRepositories(db: DB): Repositories {
       const upd = db.prepare(`UPDATE tasks SET position = ? WHERE id = ?`)
       const tx = db.transaction((ids: number[]) => ids.forEach((id, i) => upd.run(i, id)))
       tx(orderedIds)
+    },
+    counts() {
+      const today = localDateString(new Date())
+      const inbox = inboxId()
+      const one = (sql: string, ...params: unknown[]): number =>
+        (db.prepare(sql).get(...params) as { c: number }).c
+      const todayCount = one(
+        `SELECT COUNT(*) AS c FROM tasks WHERE is_completed = 0 AND parent_id IS NULL AND due_date IS NOT NULL AND due_date <= ?`,
+        today
+      )
+      const inboxCount = one(
+        `SELECT COUNT(*) AS c FROM tasks WHERE is_completed = 0 AND parent_id IS NULL AND project_id = ?`,
+        inbox
+      )
+      const upcomingCount = one(
+        `SELECT COUNT(*) AS c FROM tasks WHERE is_completed = 0 AND parent_id IS NULL AND due_date IS NOT NULL AND due_date >= ?`,
+        today
+      )
+      const byProject: Record<number, number> = {}
+      for (const r of db
+        .prepare(
+          `SELECT project_id AS id, COUNT(*) AS c FROM tasks WHERE is_completed = 0 AND parent_id IS NULL GROUP BY project_id`
+        )
+        .all() as { id: number; c: number }[])
+        byProject[r.id] = r.c
+      const byLabel: Record<number, number> = {}
+      for (const r of db
+        .prepare(
+          `SELECT tl.label_id AS id, COUNT(*) AS c FROM task_labels tl JOIN tasks t ON t.id = tl.task_id WHERE t.is_completed = 0 GROUP BY tl.label_id`
+        )
+        .all() as { id: number; c: number }[])
+        byLabel[r.id] = r.c
+      return { today: todayCount, inbox: inboxCount, upcoming: upcomingCount, byProject, byLabel }
     }
   }
 

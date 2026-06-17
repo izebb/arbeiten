@@ -68,6 +68,14 @@ export interface Stats {
   dailyGoal: number
 }
 
+export interface Counts {
+  today: number
+  inbox: number
+  upcoming: number
+  byProject: Record<number, number>
+  byLabel: Record<number, number>
+}
+
 // ---- Input DTOs ----
 
 export interface NewProject {
@@ -117,12 +125,13 @@ export interface NewFocusSession {
   plannedSeconds: number
 }
 
-export type ViewKind = 'inbox' | 'today' | 'upcoming' | 'project' | 'label' | 'search'
+export type ViewKind = 'inbox' | 'today' | 'upcoming' | 'project' | 'label' | 'search' | 'priority'
 export interface ViewQuery {
   kind: ViewKind
   projectId?: number
   labelId?: number
   text?: string
+  priority?: Priority
 }
 
 // ---- IPC API surface (exposed on window.api) ----
@@ -144,6 +153,7 @@ export interface Api {
     delete(id: number): Promise<void>
     reorder(orderedIds: number[]): Promise<void>
     subtasks(parentId: number): Promise<Task[]>
+    counts(): Promise<Counts>
   }
   labels: {
     list(): Promise<Label[]>
@@ -173,7 +183,7 @@ export interface Api {
 /** Namespaced method names used to build IPC channels + the preload bridge. */
 export const API_METHODS = {
   projects: ['list', 'create', 'update', 'delete', 'reorder'],
-  tasks: ['list', 'get', 'create', 'update', 'setComplete', 'delete', 'reorder', 'subtasks'],
+  tasks: ['list', 'get', 'create', 'update', 'setComplete', 'delete', 'reorder', 'subtasks', 'counts'],
   labels: ['list', 'create', 'update', 'delete'],
   comments: ['listForTask', 'create', 'delete'],
   focus: ['create', 'complete', 'notify'],
