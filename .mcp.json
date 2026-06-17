@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "arbeiten": {
+      "command": "node",
+      "args": ["agent/dist/mcp.js"]
+    }
+  }
+}

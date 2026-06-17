@@ -1,0 +1,19 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "strict": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "resolveJsonModule": true,
+    "noEmit": true,
+    "baseUrl": "..",
+    "paths": {
+      "@shared/*": ["src/shared/*"]
+    },
+    "types": ["node", "better-sqlite3"]
+  },
+  "include": ["src/**/*", "../src/main/db/**/*", "../src/shared/**/*"]
+}
