@@ -11,10 +11,18 @@ export default function App() {
   const theme = useStore((s) => s.theme)
   const selectedTaskId = useStore((s) => s.selectedTaskId)
   const init = useStore((s) => s.init)
+  const applyExternalChange = useStore((s) => s.applyExternalChange)
 
   useEffect(() => {
     void init()
   }, [init])
+
+  useEffect(() => {
+    // Live-refresh when the agent CLI (or any other process) writes to the DB.
+    return window.api.onExternalChange(() => {
+      void applyExternalChange()
+    })
+  }, [applyExternalChange])
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme)

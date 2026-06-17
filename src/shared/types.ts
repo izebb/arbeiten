@@ -178,7 +178,12 @@ export interface Api {
     getAll(): Promise<Record<string, string>>
     set(key: string, value: string): Promise<void>
   }
+  /** Subscribe to changes made by another process (e.g. the agent CLI). Returns an unsubscribe fn. */
+  onExternalChange(callback: () => void): () => void
 }
+
+/** IPC channel the main process uses to notify renderers of external DB changes. */
+export const EXTERNAL_CHANGE_CHANNEL = 'external-change'
 
 /** Namespaced method names used to build IPC channels + the preload bridge. */
 export const API_METHODS = {

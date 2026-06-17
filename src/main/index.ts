@@ -2,6 +2,8 @@ import { app, BrowserWindow } from 'electron'
 import { join } from 'path'
 import { openDatabase } from './db/connection'
 import { registerIpc } from './ipc'
+import { watchExternalChanges } from './watcher'
+import { EXTERNAL_CHANGE_CHANNEL } from '@shared/types'
 
 function createWindow(): void {
   const win = new BrowserWindow({
@@ -30,9 +32,18 @@ function createWindow(): void {
 }
 
 app.whenReady().then(() => {
-  const db = openDatabase(join(app.getPath('userData'), 'arbeiten.db'))
+  const dbPath = join(app.getPath('userData'), 'arbeiten.db')
+  const db = openDatabase(dbPath)
   registerIpc(db)
   createWindow()
+
+  const dispose = watchExternalChanges(db, dbPath, () => {
+    for (const win of BrowserWindow.getAllWindows()) {
+      win.webContents.send(EXTERNAL_CHANGE_CHANNEL)
+    }
+  })
+  app.on('before-quit', dispose)
+
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) createWindow()
   })

@@ -6,8 +6,8 @@ description: Add, complete, update, and list tasks and labels in the Arbeiten to
 # Arbeiten task agent
 
 Drive the local Arbeiten todo app by shelling out to its CLI. Writes go straight to
-Arbeiten's SQLite database, so they work whether or not the app window is open (an
-open app shows new items when you switch views or relaunch).
+Arbeiten's SQLite database, so they work whether or not the app window is open — and
+an open app reflects the changes live (it watches the DB for external writes).
 
 All commands print JSON on stdout. Run them from the project root.
 

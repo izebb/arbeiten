@@ -37,6 +37,7 @@ interface AppState {
 
   init: () => Promise<void>
   refresh: () => Promise<void>
+  applyExternalChange: () => Promise<void>
   reloadProjects: () => Promise<void>
   reloadLabels: () => Promise<void>
   selectView: (view: ViewQuery, title: string) => void
@@ -105,6 +106,16 @@ export const useStore = create<AppState>((set, get) => ({
       set({ tasks })
     }
     set({ counts, stats })
+  },
+
+  async applyExternalChange() {
+    // Another process (e.g. the agent CLI) changed the DB; resync everything.
+    const [projects, labels] = await Promise.all([
+      window.api.projects.list(),
+      window.api.labels.list()
+    ])
+    set({ projects, labels })
+    await get().refresh()
   },
 
   async reloadProjects() {
