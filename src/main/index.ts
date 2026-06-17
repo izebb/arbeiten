@@ -1,5 +1,7 @@
 import { app, BrowserWindow } from 'electron'
 import { join } from 'path'
+import { openDatabase } from './db/connection'
+import { registerIpc } from './ipc'
 
 function createWindow(): void {
   const win = new BrowserWindow({
@@ -28,6 +30,8 @@ function createWindow(): void {
 }
 
 app.whenReady().then(() => {
+  const db = openDatabase(join(app.getPath('userData'), 'arbeiten.db'))
+  registerIpc(db)
   createWindow()
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) createWindow()
