@@ -471,6 +471,24 @@ select {
 .task-row:hover .task-actions {
   opacity: 1;
 }
+.drag-handle {
+  position: absolute;
+  left: -18px;
+  top: 9px;
+  display: grid;
+  place-items: center;
+  color: var(--text-tertiary);
+  cursor: grab;
+  opacity: 0;
+  transition: opacity 0.12s;
+  touch-action: none;
+}
+.task-row:hover .drag-handle {
+  opacity: 1;
+}
+.drag-handle:active {
+  cursor: grabbing;
+}
 .checkbox {
   flex-shrink: 0;
   width: 19px;

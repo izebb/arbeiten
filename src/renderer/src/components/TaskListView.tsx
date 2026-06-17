@@ -1,3 +1,18 @@
+import {
+  DndContext,
+  PointerSensor,
+  closestCenter,
+  useSensor,
+  useSensors,
+  type DragEndEvent
+} from '@dnd-kit/core'
+import {
+  SortableContext,
+  arrayMove,
+  useSortable,
+  verticalListSortingStrategy
+} from '@dnd-kit/sortable'
+import { CSS } from '@dnd-kit/utilities'
 import { useStore } from '../store'
 import TaskRow from './TaskRow'
 import { InlineQuickAdd } from './QuickAdd'
@@ -32,10 +47,31 @@ function EmptyState({ kind }: { kind: string }) {
   )
 }
 
+function SortableTaskRow({ task, showProject }: { task: Task; showProject?: boolean }) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+    id: task.id
+  })
+  const style: React.CSSProperties = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.4 : 1,
+    position: 'relative',
+    zIndex: isDragging ? 2 : 1
+  }
+  return (
+    <div ref={setNodeRef} style={style} {...attributes}>
+      <TaskRow task={task} showProject={showProject} dragHandleProps={listeners} />
+    </div>
+  )
+}
+
 export default function TaskListView() {
   const tasks = useStore((s) => s.tasks)
   const view = useStore((s) => s.view)
+  const reorderTasks = useStore((s) => s.reorderTasks)
   const showProject = view.kind !== 'project' && view.kind !== 'inbox'
+
+  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 6 } }))
 
   if (view.kind === 'upcoming') {
     const groups = new Map<string, Task[]>()
@@ -61,13 +97,29 @@ export default function TaskListView() {
     )
   }
 
+  const ids = tasks.map((t) => t.id)
+  const onDragEnd = (e: DragEndEvent): void => {
+    const { active, over } = e
+    if (over && active.id !== over.id) {
+      const oldIndex = ids.indexOf(active.id as number)
+      const newIndex = ids.indexOf(over.id as number)
+      if (oldIndex >= 0 && newIndex >= 0) void reorderTasks(arrayMove(ids, oldIndex, newIndex))
+    }
+  }
+
   return (
     <div className="task-list">
       <InlineQuickAdd />
       {tasks.length === 0 ? (
         <EmptyState kind={view.kind} />
       ) : (
-        tasks.map((t) => <TaskRow key={t.id} task={t} showProject={showProject} />)
+        <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd}>
+          <SortableContext items={ids} strategy={verticalListSortingStrategy}>
+            {tasks.map((t) => (
+              <SortableTaskRow key={t.id} task={t} showProject={showProject} />
+            ))}
+          </SortableContext>
+        </DndContext>
       )}
     </div>
   )

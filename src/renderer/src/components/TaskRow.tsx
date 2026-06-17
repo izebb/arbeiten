@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useStore } from '../store'
 import { describeDue } from '../lib/date'
 import { formatDuration } from '@shared/time'
-import { CalendarIcon, ClockIcon, CommentIcon, EditIcon, TrashIcon } from './Icons'
+import { CalendarIcon, ClockIcon, CommentIcon, EditIcon, GripIcon, TrashIcon } from './Icons'
 import type { Task } from '@shared/types'
 
 const PRIORITY_COLOR: Record<number, string> = {
@@ -12,7 +12,15 @@ const PRIORITY_COLOR: Record<number, string> = {
   4: 'var(--p4)'
 }
 
-export default function TaskRow({ task, showProject }: { task: Task; showProject?: boolean }) {
+export default function TaskRow({
+  task,
+  showProject,
+  dragHandleProps
+}: {
+  task: Task
+  showProject?: boolean
+  dragHandleProps?: Record<string, unknown>
+}) {
   const toggleTask = useStore((s) => s.toggleTask)
   const openTask = useStore((s) => s.openTask)
   const deleteTask = useStore((s) => s.deleteTask)
@@ -36,6 +44,16 @@ export default function TaskRow({ task, showProject }: { task: Task; showProject
 
   return (
     <div className="task-row" onClick={() => openTask(task.id)}>
+      {dragHandleProps && (
+        <span
+          className="drag-handle"
+          title="Drag to reorder"
+          {...dragHandleProps}
+          onClick={(e) => e.stopPropagation()}
+        >
+          <GripIcon size={16} />
+        </span>
+      )}
       <button
         className={`checkbox p${task.priority}${checking ? ' checked' : ''}`}
         style={{ borderColor: pc, color: pc }}
